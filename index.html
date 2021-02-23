@@ -7,46 +7,99 @@
 
 </head>
 <body>
-    <script src="https://threejs.org/build/three.min.js"></script>
-    <script src="https://threejs.org/examples/js/loaders/STLLoader.js"></script>
-    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
-    <script>
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.set(5000,5000,5000);
-        var renderer = new THREE.WebGLRenderer();
-        renderer.setClearColor(0x404040);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    <div id="model" style="width: 50%; height: 50%"> </div>
+    <input type="range" min="1" max="200" value="50" id="slider">
+    <script type="module">
+        import * as THREE from '/node_modules/three/build/three.module.js';
+        import {STLLoader} from '/node_modules/three/examples/jsm/loaders/STLLoader.js'
+        import {OrbitControls} from '/node_modules/three/examples/jsm/controls/OrbitControls.js'
         
-        var loader = new THREE.STLLoader();
-        loader.load('./3DBenchy.stl', function(geometry) {
 
-          var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-            color: 0xff00ff,
-            wireframe: true
-          }));
-          mesh.rotation.set(-Math.PI / 2, 0, 0);
-          mesh.scale.setScalar(100);
-          scene.add(mesh);
+            var elem = document.getElementById("model")
+            THREE.Object3D.DefaultUp.set(0, 0, 1);
+            var camera = new THREE.PerspectiveCamera(70, elem.clientWidth/elem.clientHeight, 1, 1000);
+            var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(elem.clientWidth, elem.clientHeight);
+            elem.appendChild(renderer.domElement);
+            
+            window.addEventListener('resize', function () {
+                renderer.setSize(elem.clientWidth, elem.clientHeight);
+                camera.aspect = elem.clientWidth/elem.clientHeight;
+                camera.updateProjectionMatrix();
+            }, false);
+            
+            
+            var controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.rotateSpeed = 0.5;
+            controls.dampingFactor = 0.1;
+            controls.enableZoom = true;
+            controls.autoRotateSpeed = .75;
+        
+            var scene = new THREE.Scene();
+            var light = new THREE.HemisphereLight(0xffffff, 1,1,100);
+            scene.add(light);
+            const Ambient = new THREE.AmbientLight( 0xffffff, 0.5 ); // soft white light
+            scene.add( Ambient );
+            
+            var localPlane = new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ), 0.8 );
+        
+            new STLLoader().load("Erin.stl", function (geometry) {
+                var material = new THREE.MeshPhongMaterial({ 
+                    color: 0xff5533, 
+                    specular: 0x050505, 
+                    shininess: 50 ,
+                    polygonOffset: true,
+                    clippingPlanes: [ localPlane ],
+                    polygonOffsetFactor: 1,
+                    polygonOffsetUnits: 1});
+                var mesh = new THREE.Mesh(geometry, material);
+                    scene.add(mesh);
+            
+                
+            
+                
+            
+            var middle = new THREE.Vector3();
+            geometry.computeBoundingBox();
+            geometry.boundingBox.getCenter(middle);
+            mesh.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(-middle.x, -middle.y, -middle.z ) );
 
-          console.log("stl volume is " + getVolume(geometry));
-        });
+                
+            camera.position.set(geometry.boundingBox.max.x * 1.5, geometry.boundingBox.max.y * 1.5, geometry.boundingBox.max.z * 1.5);
+            var largestDimension = Math.max(geometry.boundingBox.max.x,
+                            geometry.boundingBox.max.y, 
+                            geometry.boundingBox.max.z)
+            var sizeRoundedToCM = Math.ceil(largestDimension *2 / 10) * 10 + 2 * Math.ceil(0.2 * largestDimension * 2 / 10) * 10;
+                
+            const edges = new THREE.EdgesGeometry(geometry, 75);
+            const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
+            scene.add( line );
 
-        // check with known volume:
-        var hollowCylinderGeom = new THREE.LatheBufferGeometry([
-          new THREE.Vector2(1, 0),
-          new THREE.Vector2(2, 0),
-          new THREE.Vector2(2, 2),
-          new THREE.Vector2(1, 2),
-          new THREE.Vector2(1, 0)
-        ], 90).toNonIndexed();
-        console.log("pre-computed volume of a hollow cylinder (PI * (R^2 - r^2) * h): " + Math.PI * (Math.pow(2, 2) - Math.pow(1, 2)) * 2);
-        console.log("computed volume of a hollow cylinder: " + getVolume(hollowCylinderGeom));
+            var gridXZ = new THREE.GridHelper(sizeRoundedToCM, sizeRoundedToCM / 10 , 0xffffff, 0xffffff);
+            gridXZ.rotation.x = Math.PI/2;
+            gridXZ.position.set(0,0,-geometry.boundingBox.max.z);
+            scene.add(gridXZ);
+            var animate = function () {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }; 
+                
+                animate();
+            });
+        
 
-
+            const slider = document.getElementById( 'slider' );
+	
+            slider.addEventListener( 'input', ( event ) => {
+	           
+                const value = parseFloat( event.target.value );
+                localPlane.constant = value * 0.01;
+                
+            
+            } );
+        
         function getVolume(geometry) {
 
           let position = geometry.attributes.position;
@@ -69,9 +122,7 @@
           return p1.dot(p2.cross(p3)) / 6.0;
         }
 
-        renderer.setAnimationLoop(() => {
-          renderer.render(scene, camera);
-        });
     </script>
+
 </body>
 </html>
