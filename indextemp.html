@@ -7,7 +7,7 @@
 
 	</head>
 	<body>
-        <input type="range" min="0" max="100" value="100" id="slider">
+        <input type="range" min="0" max="1000" value="1000" id="slider">
         <button onclick="cameraControls.rotate(  45 * THREE.MathUtils.DEG2RAD, 0, true )">rotate theta 45deg</button>
 
         <div id="model" style="width: 2000px; height: 1000px; background-color: red;">3D Model viewer</div>
@@ -38,7 +38,6 @@
                 // camera
                 
                 camera = new THREE.PerspectiveCamera(70, container.clientWidth/container.clientHeight);
-                camera.position.set( 0, 0, 5 );
                 
                 // renderer
 
@@ -123,7 +122,7 @@
 
                     let gridXZ = new THREE.GridHelper(sizeRoundedToUnit, sizeRoundedToUnit, 0xdedede, 0xffffff);
                     gridXZ.rotation.x = Math.PI/2;
-                    gridXZ.position.set(0,0,-geometry.boundingBox.max.z);
+                    gridXZ.position.set(0,0,-geometry.boundingBox.max.z - 0.001);
                     scene.add(gridXZ); //gridhelper plane
 
                 }
@@ -160,14 +159,23 @@
                         
                         let value = parseFloat(event.target.value);
                         
-                        if (value != 100) {
-                            planeMesh.visible = true;
-                        } 
-                        
-                        let factor = 100 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 100 is than the size
-                        let currentZ = (value / factor) - geometry.boundingBox.max.z + 0.1; //divide by that factor, to scale, then shift down by half of the size, because the midpoint is 0 
+                        let factor = 1000 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 100 is than the size
+                        let currentZ = (value / factor) - geometry.boundingBox.max.z; //divide by that factor, to scale, then shift down by half of the size, because the midpoint is 0 
                         plane.constant = currentZ;
                         planeMesh.position.set(0,0,currentZ);
+                        
+                        if (value == 1000 ) {
+                            planeMesh.visible = false;
+                            plane.constant = currentZ + 1;
+                        } else if (value == 0) {
+                            planeMesh.visible = true;
+                            plane.constant = currentZ + 0.01;
+                            planeMesh.position.set(0,0,currentZ + 0.01);
+                            
+                        } else { 
+                            planeMesh.visible = true;
+                        }
+                        
                         renderer.render( scene, camera );
  
                     });  
