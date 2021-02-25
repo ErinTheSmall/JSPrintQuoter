@@ -10,7 +10,7 @@
         <input type="range" min="0" max="1000" value="1000" id="slider">
         <button onclick="cameraControls.rotate(  45 * THREE.MathUtils.DEG2RAD, 0, true )">rotate theta 45deg</button>
 
-        <div id="model" style="width: 2000px; height: 1000px; background-color: red;">3D Model viewer</div>
+        <div id="model" style="width: 1200px; height: 700px; background-color: red;">3D Model viewer</div>
 
 		<script type="module">
 
@@ -108,12 +108,12 @@
                     largestDimension = largestDimension * factor; // update largestDimension to reflect new scale
                     geometry.scale(factor, factor, factor); //scale the geometry
                     
-                    camera.far = largestDimension *20; // set the camera far clip plane
+                    let sizeRoundedToUnit = Math.ceil(largestDimension *2) + Math.ceil(largestDimension * 1.1) ; //size of largest axis + 10%x2 rounded up to 1 units
+                    
+                    camera.far = sizeRoundedToUnit * 5; // set the camera far clip plane
                     camera.updateProjectionMatrix(); // updates the camera stuff so it works
                     
-                    cameraControls.maxDistance = largestDimension * 15; // sets the max distance the user can move the camera out
-                    
-                    let sizeRoundedToUnit = Math.ceil(largestDimension *2) + Math.ceil(largestDimension * 1.1) ; //size of largest axis + 10%x2 
+                    cameraControls.maxDistance = sizeRoundedToUnit * 4; // sets the max distance the user can move the camera out
                     
                     
                     let edges = new THREE.EdgesGeometry(geometry, 75);
