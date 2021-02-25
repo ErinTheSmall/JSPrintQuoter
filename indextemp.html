@@ -8,8 +8,9 @@
 	</head>
 	<body>
         <input type="range" min="0" max="100" value="100" id="slider">
+        <button onclick="cameraControls.rotate(  45 * THREE.MathUtils.DEG2RAD, 0, true )">rotate theta 45deg</button>
 
-        <div id="model" style="width: 500px; height: 500px; background-color: red;">3D Model viewer</div>
+        <div id="model" style="width: 2000px; height: 1000px; background-color: red;">3D Model viewer</div>
 
 		<script type="module">
 
@@ -23,8 +24,8 @@
             
             
             let camera, scene, renderer, cameraControls, plane;
-            var frontFaceStencilMat, backFaceStencilMat, planeStencilMat;
-            var planeMesh;
+            let frontFaceStencilMat, backFaceStencilMat, planeStencilMat;
+            let planeMesh;
 
 			init();
 			render();
@@ -52,7 +53,7 @@
                 
                 const light = new THREE.HemisphereLight(0xffffff, 1,1,100);
                 scene.add(light);
-                const Ambient = new THREE.AmbientLight( 0xffffff, 0.5 ); // soft white light
+                const Ambient = new THREE.AmbientLight( 0xffffff, 0.15 ); // soft white light
                 scene.add( Ambient );
                 
                                 
@@ -71,7 +72,7 @@
                     plane = new THREE.Plane(planeNormal, geometry.boundingBox.max.z/2 + 0.1);
                     
                     let material = new THREE.MeshPhongMaterial({ 
-                        color: 0xff5533, 
+                        color: 0x404A4C, 
                         specular: 0x050505, 
                         shininess: 50 ,
                         clippingPlanes: [plane], //TODO move this into the crossSection function
@@ -104,10 +105,10 @@
                     var sizeRoundedToCM = Math.ceil(largestDimension *2 / 10) * 10 + 2 * Math.ceil(0.2 * largestDimension * 2 / 10) * 10; //size of largest axis + 10%x2 
 
                     const edges = new THREE.EdgesGeometry(geometry, 75);
-                    const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff, clippingPlanes: [plane] } ) );
+                    const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [plane] } ) );
                     scene.add( line ); // edge highlighting
 
-                    var gridXZ = new THREE.GridHelper(sizeRoundedToCM, sizeRoundedToCM / 10 , 0xffffff, 0xffffff);
+                    var gridXZ = new THREE.GridHelper(sizeRoundedToCM, sizeRoundedToCM / 10 , 0xdedede, 0xffffff);
                     gridXZ.rotation.x = Math.PI/2;
                     gridXZ.position.set(0,0,-geometry.boundingBox.max.z);
                     scene.add(gridXZ); //gridhelper plane
@@ -136,9 +137,8 @@
                     scene.add(backMesh);
 
                     // Add the plane
-                    var planeGeom = new THREE.PlaneBufferGeometry();
+                    var planeGeom = new THREE.PlaneGeometry(geometry.boundingBox.max.x*2,geometry.boundingBox.max.y*2);
                     planeMesh = new THREE.Mesh(planeGeom, planeStencilMat);
-                    planeMesh.scale.setScalar(100);
                     planeMesh.renderOrder = 1;
                     scene.add(planeMesh);
                     
@@ -206,7 +206,10 @@
                     // PASS 3
                 // draw the plane everywhere that the stencil buffer != 0, which will
                 // only be in the clipped region where back faces are visible.
-                planeStencilMat = new THREE.MeshNormalMaterial();
+                planeStencilMat = new THREE.MeshPhongMaterial({ 
+                        color: 0xF2A62C, 
+                        shininess: 0 ,
+                    });
                 planeStencilMat.stencilWrite = true;
                 planeStencilMat.stencilRef = 0;
                 planeStencilMat.stencilFunc = THREE.NotEqualStencilFunc;
