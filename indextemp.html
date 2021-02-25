@@ -99,23 +99,29 @@
                 
                 // grid and outline
                 
-                function helpers(geometry) {
-                    let largestDimension = Math.max(geometry.boundingBox.max.x,
+                function helpers(geometry, mesh) {
+                    let largestDimension = Math.max(geometry.boundingBox.max.x, 
                     geometry.boundingBox.max.y, 
-                    geometry.boundingBox.max.z)
+                    geometry.boundingBox.max.z) // calculate the largest dimensions
+    
                     
-                    camera.far = largestDimension *20;
-                    camera.updateProjectionMatrix();
+                    let factor =1 / Math.pow(10, Math.round(largestDimension).toString().length - 1); // calculate how much smaller we need to scale the object (e.g: 20cm cube needs to be scaled down by 10 (* 0.1))
+                    largestDimension = largestDimension * factor; // update largestDimension to reflect new scale
+                    geometry.scale(factor, factor, factor); //scale the geometry
                     
-                    cameraControls.maxDistance = largestDimension * 15;
+                    camera.far = largestDimension *20; // set the camera far clip plane
+                    camera.updateProjectionMatrix(); // updates the camera stuff so it works
                     
-                    let sizeRoundedToCM = Math.ceil(largestDimension *2 / 10) * 10 + 2 * Math.ceil(0.2 * largestDimension * 2 / 10) * 10; //size of largest axis + 10%x2 
-
+                    cameraControls.maxDistance = largestDimension * 15; // sets the max distance the user can move the camera out
+                    
+                    let sizeRoundedToUnit = Math.ceil(largestDimension *2) + Math.ceil(largestDimension * 1.1) ; //size of largest axis + 10%x2 
+                    
+                    
                     let edges = new THREE.EdgesGeometry(geometry, 75);
                     let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [plane] } ) );
                     scene.add( line ); // edge highlighting
 
-                    let gridXZ = new THREE.GridHelper(sizeRoundedToCM, sizeRoundedToCM / 10 , 0xdedede, 0xffffff);
+                    let gridXZ = new THREE.GridHelper(sizeRoundedToUnit, sizeRoundedToUnit, 0xdedede, 0xffffff);
                     gridXZ.rotation.x = Math.PI/2;
                     gridXZ.position.set(0,0,-geometry.boundingBox.max.z);
                     scene.add(gridXZ); //gridhelper plane
@@ -176,10 +182,8 @@
                 let meshFile = prompt("enter filename:", "Erin.stl")
 				loader.load( meshFile, function (geometry) {    
                     let mesh = loadMesh(geometry);
-    
-                    helpers(geometry);
+                    helpers(geometry, mesh);
                     crossSection(geometry, mesh);
-                
 				} );
 
 
