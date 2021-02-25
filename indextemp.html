@@ -147,12 +147,16 @@
                     var planeGeom = new THREE.PlaneGeometry(geometry.boundingBox.max.x*2,geometry.boundingBox.max.y*2);
                     planeMesh = new THREE.Mesh(planeGeom, planeStencilMat);
                     planeMesh.renderOrder = 1;
+                    planeMesh.visible = false;
                     scene.add(planeMesh);
-                    
                     
                     slider.addEventListener('input', (event) => {
                         
                         const value = parseFloat(event.target.value);
+                        
+                        if (value != 100) {
+                            planeMesh.visible = true;
+                        } 
                         
                         var factor = 100 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 100 is than the size
                         let currentZ = (value / factor) - geometry.boundingBox.max.z + 0.1; //divide by that factor, to scale, then shift down by half of the size, because the midpoint is 0 
