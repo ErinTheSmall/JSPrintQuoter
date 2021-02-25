@@ -20,7 +20,7 @@
             
             
             CameraControls.install( { THREE: THREE } );
-            const clock = new THREE.Clock();
+            let clock = new THREE.Clock();
             
             
             let camera, scene, renderer, cameraControls, plane;
@@ -51,9 +51,9 @@
                 
                 scene = new THREE.Scene();
                 
-                const light = new THREE.HemisphereLight(0xffffff, 1,1,100);
+                let light = new THREE.HemisphereLight(0xffffff, 1,1,100);
                 scene.add(light);
-                const Ambient = new THREE.AmbientLight( 0xffffff, 0.15 ); // soft white light
+                let Ambient = new THREE.AmbientLight( 0xffffff, 0.15 ); // soft white light
                 scene.add( Ambient );
                 
                                 
@@ -100,7 +100,7 @@
                 // grid and outline
                 
                 function helpers(geometry) {
-                    var largestDimension = Math.max(geometry.boundingBox.max.x,
+                    let largestDimension = Math.max(geometry.boundingBox.max.x,
                     geometry.boundingBox.max.y, 
                     geometry.boundingBox.max.z)
                     
@@ -109,13 +109,13 @@
                     
                     cameraControls.maxDistance = largestDimension * 15;
                     
-                    var sizeRoundedToCM = Math.ceil(largestDimension *2 / 10) * 10 + 2 * Math.ceil(0.2 * largestDimension * 2 / 10) * 10; //size of largest axis + 10%x2 
+                    let sizeRoundedToCM = Math.ceil(largestDimension *2 / 10) * 10 + 2 * Math.ceil(0.2 * largestDimension * 2 / 10) * 10; //size of largest axis + 10%x2 
 
-                    const edges = new THREE.EdgesGeometry(geometry, 75);
-                    const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [plane] } ) );
+                    let edges = new THREE.EdgesGeometry(geometry, 75);
+                    let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [plane] } ) );
                     scene.add( line ); // edge highlighting
 
-                    var gridXZ = new THREE.GridHelper(sizeRoundedToCM, sizeRoundedToCM / 10 , 0xdedede, 0xffffff);
+                    let gridXZ = new THREE.GridHelper(sizeRoundedToCM, sizeRoundedToCM / 10 , 0xdedede, 0xffffff);
                     gridXZ.rotation.x = Math.PI/2;
                     gridXZ.position.set(0,0,-geometry.boundingBox.max.z);
                     scene.add(gridXZ); //gridhelper plane
@@ -125,7 +125,7 @@
                 
                 function crossSection(geometry, mesh) {
                     
-                    var planes = [ plane ];                    
+                    let planes = [ plane ];                    
                         // Set up the stencil materials
                     initStencilMaterials();
 
@@ -134,17 +134,17 @@
                     backFaceStencilMat.clippingPlanes = planes;
 
                         // Add the front face stencil
-                    var frontMesh = new THREE.Mesh(geometry, frontFaceStencilMat);
+                    let frontMesh = new THREE.Mesh(geometry, frontFaceStencilMat);
                     frontMesh.rotation.copy(mesh.rotation);
                     scene.add(frontMesh);
 
                     // Add the back face stencil
-                    var backMesh = new THREE.Mesh(geometry, backFaceStencilMat);
+                    let backMesh = new THREE.Mesh(geometry, backFaceStencilMat);
                     backMesh.rotation.copy(mesh.rotation);
                     scene.add(backMesh);
 
                     // Add the plane
-                    var planeGeom = new THREE.PlaneGeometry(geometry.boundingBox.max.x*2,geometry.boundingBox.max.y*2);
+                    let planeGeom = new THREE.PlaneGeometry(geometry.boundingBox.max.x*2,geometry.boundingBox.max.y*2);
                     planeMesh = new THREE.Mesh(planeGeom, planeStencilMat);
                     planeMesh.renderOrder = 1;
                     planeMesh.visible = false;
@@ -152,13 +152,13 @@
                     
                     slider.addEventListener('input', (event) => {
                         
-                        const value = parseFloat(event.target.value);
+                        let value = parseFloat(event.target.value);
                         
                         if (value != 100) {
                             planeMesh.visible = true;
                         } 
                         
-                        var factor = 100 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 100 is than the size
+                        let factor = 100 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 100 is than the size
                         let currentZ = (value / factor) - geometry.boundingBox.max.z + 0.1; //divide by that factor, to scale, then shift down by half of the size, because the midpoint is 0 
                         plane.constant = currentZ;
                         planeMesh.position.set(0,0,currentZ);
@@ -241,8 +241,8 @@
 
 			function render() {
                 
-                const delta = clock.getDelta();
-                const haveControlsUpdated = cameraControls.update( delta );
+                let delta = clock.getDelta();
+                let haveControlsUpdated = cameraControls.update( delta );
                 
                 requestAnimationFrame(render);
                 
