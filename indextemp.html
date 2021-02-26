@@ -38,6 +38,7 @@
                 // camera
                 
                 camera = new THREE.PerspectiveCamera(70, container.clientWidth/container.clientHeight);
+                camera.position.set( 0, 0, 0 );
                 
                 // renderer
 
@@ -60,8 +61,8 @@
 				
                 cameraControls = new CameraControls( camera, renderer.domElement );
                 
-
-
+                
+                
                 //load mesh into scene
                 
                 function loadMesh(geometry) {
@@ -88,8 +89,7 @@
                     let middle = new THREE.Vector3();
                     geometry.boundingBox.getCenter(middle);
                     mesh.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(-middle.x, -middle.y, -middle.z ) );
-
-                    cameraControls.fitToSphere(mesh, false);
+                    
 
                     console.log(mesh)
                     return mesh;
@@ -112,8 +112,8 @@
                     
                     camera.far = sizeRoundedToUnit * 5; // set the camera far clip plane
                     camera.updateProjectionMatrix(); // updates the camera stuff so it works
-                    
                     cameraControls.maxDistance = sizeRoundedToUnit * 4; // sets the max distance the user can move the camera out
+                    cameraControls.fitToSphere(mesh, false);
                     
                     
                     let edges = new THREE.EdgesGeometry(geometry, 75);
@@ -194,7 +194,6 @@
                     crossSection(geometry, mesh);
 				} );
 
-
 			}
 
             function initStencilMaterials() {
@@ -252,6 +251,7 @@
 			}
 
 			function render() {
+                
                 
                 let delta = clock.getDelta();
                 let haveControlsUpdated = cameraControls.update( delta );
