@@ -7,16 +7,20 @@
 
 	</head>
 	<body>
-        <input type="range" min="0" max="1000" value="1000" id="slider">
+        <input type="range" min="0" max="1000" value="1000" id="crossSectionSlider">
         <button onclick="cameraControls.rotate(  45 * THREE.MathUtils.DEG2RAD, 0, true )">rotate theta 45deg</button>
-
-        <div id="model" style="width: 1200px; height: 700px; background-color: red;">3D Model viewer</div>
-
+        
+        <div id="canvasContainer">
+            <div id="canvas" style="width: 1200px; height: 700px; background-color: red;">3D Model viewer</div>
+            <div id="labels"></div>
+        </div>
 		<script type="module">
 
             import * as THREE from '/node_modules/three/build/three.module.js';
             import {STLLoader} from '/node_modules/three/examples/jsm/loaders/STLLoader.js'
+            import { CSS2DRenderer, CSS2DObject } from '/node_modules/three/examples/jsm/renderers/CSS2DRenderer.js';
             import CameraControls from '/node_modules/camera-controls/dist/camera-controls.module.js'
+            
             
             
             CameraControls.install( { THREE: THREE } );
@@ -32,7 +36,7 @@
 
 			function init() {
                 
-				let container = document.getElementById("model");  
+				let container = document.getElementById("canvas");  
                 THREE.Object3D.DefaultUp.set(0, 0, 1);
                 
                 // camera
@@ -124,6 +128,14 @@
                     gridXZ.rotation.x = Math.PI/2;
                     gridXZ.position.set(0,0,-geometry.boundingBox.max.z - 0.001);
                     scene.add(gridXZ); //gridhelper plane
+                    
+                    const moonDiv = document.createElement( 'div' );
+                    moonDiv.className = 'label';
+                    moonDiv.textContent = 'Moon';
+                    moonDiv.style.marginTop = '-1em';
+                    const moonLabel = new CSS2DObject( moonDiv );
+                    moonLabel.position.set( 0, 0, 3 );
+                    scene.add( moonLabel );
 
                 }
                 
@@ -155,7 +167,7 @@
                     planeMesh.visible = false;
                     scene.add(planeMesh);
                     
-                    slider.addEventListener('input', (event) => {
+                    crossSectionSlider.addEventListener('input', (event) => {
                         
                         let value = parseFloat(event.target.value);
                         
