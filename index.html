@@ -137,10 +137,6 @@
                     gridXZ.position.set(0,0,-geometry.boundingBox.max.z - 0.001);
                     scene.add(gridXZ); //gridhelper plane
                     
-                    
-
-                    
-
                 }
                 
                 
@@ -209,6 +205,8 @@
                     helpers(geometry, mesh);
                     crossSection(geometry, mesh);
 				} );
+                
+                window.addEventListener( 'resize', onWindowResize );
 
 			}
 
@@ -269,10 +267,12 @@
             
 			function onWindowResize() {
 
-				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
 				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
+				labelRenderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
+                renderer.render( scene, camera );
+                labelRenderer.render( scene, camera );
 
 			}
 
