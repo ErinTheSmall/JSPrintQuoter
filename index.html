@@ -4,15 +4,15 @@
 		<title>three.js webgl - STL</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="CSS/canvasStyles.css"/>
 
 	</head>
 	<body>
         <input type="range" min="0" max="1000" value="1000" id="crossSectionSlider">
         <button onclick="cameraControls.rotate(  45 * THREE.MathUtils.DEG2RAD, 0, true )">rotate theta 45deg</button>
         
-        <div id="canvasContainer">
-            <div id="canvas" style="width: 1200px; height: 700px; background-color: red;">3D Model viewer</div>
-            <div id="labels"></div>
+        <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
+            <canvas id="canvas"></canvas>
         </div>
 		<script type="module">
 
@@ -27,7 +27,7 @@
             let clock = new THREE.Clock();
             
             
-            let camera, scene, renderer, cameraControls, plane;
+            let camera, scene, renderer, labelRenderer, cameraControls, plane;
             let frontFaceStencilMat, backFaceStencilMat, planeStencilMat;
             let planeMesh;
 
@@ -36,20 +36,28 @@
 
 			function init() {
                 
-				let container = document.getElementById("canvas");  
+                let canvasContainer = document.getElementById("canvasContainer"); // get label container div
+				let renderCanvas = document.getElementById("canvas"); // get canvas div
                 THREE.Object3D.DefaultUp.set(0, 0, 1);
                 
                 // camera
                 
-                camera = new THREE.PerspectiveCamera(70, container.clientWidth/container.clientHeight);
+                camera = new THREE.PerspectiveCamera(70, canvasContainer.clientWidth/canvasContainer.clientHeight);
                 camera.position.set( 0, 0, 0 );
                 
                 // renderer
-
-				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+                
+                renderer = new THREE.WebGLRenderer({ canvas: renderCanvas, antialias: true, alpha: false } );
                 renderer.localClippingEnabled = true;
-				renderer.setSize(container.clientWidth, container.clientHeight);
-				container.appendChild( renderer.domElement );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
+
+                // label renderer
+                
+				labelRenderer = new CSS2DRenderer();
+				labelRenderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
+				canvasContainer.appendChild( labelRenderer.domElement );
+                
                 
                 //scene
                 
@@ -129,13 +137,9 @@
                     gridXZ.position.set(0,0,-geometry.boundingBox.max.z - 0.001);
                     scene.add(gridXZ); //gridhelper plane
                     
-                    const moonDiv = document.createElement( 'div' );
-                    moonDiv.className = 'label';
-                    moonDiv.textContent = 'Moon';
-                    moonDiv.style.marginTop = '-1em';
-                    const moonLabel = new CSS2DObject( moonDiv );
-                    moonLabel.position.set( 0, 0, 3 );
-                    scene.add( moonLabel );
+                    
+
+                    
 
                 }
                 
@@ -252,6 +256,16 @@
                 planeStencilMat.stencilZPass = THREE.ReplaceStencilOp;
             }
 
+            function makeLabel(position, text, className = "label") { //default to using the label class, but can be changed if passed in
+                    let labelDiv = document.createElement( 'div' );
+                    labelDiv.className = className;
+                    labelDiv.textContent = text;
+                    let textLabel = new CSS2DObject( labelDiv );
+                    textLabel.position.set(position.x,position.y,position.z); //set the rendered position to the passed in value
+                    scene.add(textLabel);
+                    return textLabel;
+  
+            }
             
 			function onWindowResize() {
 
@@ -272,6 +286,7 @@
                 
                 if (haveControlsUpdated) {
                     renderer.render( scene, camera );
+                    labelRenderer.render( scene, camera );
                 }
 
 			}

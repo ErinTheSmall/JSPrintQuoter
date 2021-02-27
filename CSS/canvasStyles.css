@@ -1,0 +1,17 @@
+.label {
+    color: white;
+}
+
+#canvasContainer {
+    width: 1000px;
+    height: 600px;
+    position: relative;
+}
+
+#canvasContainer canvas, div {
+    position: absolute;
+}
+
+#canvasContainer div {
+    pointer-events: none;
+}
