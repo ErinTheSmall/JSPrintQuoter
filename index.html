@@ -12,6 +12,7 @@
         <input type="file" id="3DModelUpload"/>
         
         <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
+            <div id="loader"></div>
             <canvas id="canvas"></canvas>
         </div>
 		<script type="module">
@@ -36,8 +37,9 @@
             
             
             function viewer() {
-
-                CameraControls.install( { THREE: THREE } );
+                
+                let manager = new THREE.LoadingManager(); // create loadingmanager
+                CameraControls.install( { THREE: THREE } ); // bind custom camera-controls library
                 let clock = new THREE.Clock();
 
 
@@ -140,8 +142,9 @@
                         camera.far = gridHelperSize * 5; // set the camera far clip plane
                         camera.updateProjectionMatrix(); // updates the camera stuff so it works
                         cameraControls.maxDistance = gridHelperSize * 4; // sets the max distance the user can move the camera out
-                        cameraControls.setLookAt(-largestDimension*3.5, -largestDimension*3.5 -0.01, largestDimension*3.5, 0, 0, 0, true); // auto camera position using, coords, home coords and transition set to true (with slight offset for label placement)
-
+                        cameraControls.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
+                        cameraControls.setLookAt(-gridHelperSize-4, -gridHelperSize-4 -0.01, gridHelperSize+4, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
+                        cameraControls.addEventListener("update", onFirstRenderChanges);
 
 
                         let edges = new THREE.EdgesGeometry(geometry, 75);
@@ -221,12 +224,13 @@
 
                     // STL Loader
 
-                    let loader = new STLLoader();
-                    loader.load( modelFile, function (geometry) {    
+                    let loader = new STLLoader(manager);
+
+                    loader.load( modelFile, function (geometry) { 
                         let mesh = loadMesh(geometry);
                         helpers(geometry, mesh);
                         crossSection(geometry, mesh);
-                    } );
+                    });
 
                     window.addEventListener( 'resize', onWindowResize );
 
@@ -328,8 +332,12 @@
                     
                 }
 
+                function onFirstRenderChanges () { // code to call once, when the first frame of the render happens
+                    cameraControls.setLookAt(-gridHelperSize, -gridHelperSize -0.01, gridHelperSize, 0, 0, 0, true); 
+                    cameraControls.removeEventListener( 'update', onFirstRenderChanges )
+                }
+                
                 function render() {
-
 
                     let delta = clock.getDelta();
                     let haveControlsUpdated = cameraControls.update( delta );
