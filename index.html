@@ -128,7 +128,8 @@
                         geometry.boundingBox.max.z) // calculate the largest dimensions
 
 
-                        let scaleFactor =1 / Math.pow(10, Math.round(largestDimension).toString().length - 1); // calculate how much smaller we need to scale the object (e.g: 20cm cube needs to be scaled down by 10 (* 0.1))
+                        let scaleFactor =1 / Math.pow(10, Math.round(largestDimension*2).toString().length - 1); // calculate how much smaller we need to scale the object (e.g: 20cm cube needs to be scaled down by 10 (* 0.1))
+                        console.log(largestDimension)
                         largestDimension = largestDimension * scaleFactor; // update largestDimension to reflect new scale
                         geometry.scale(scaleFactor, scaleFactor, scaleFactor); //scale the geometry
 
