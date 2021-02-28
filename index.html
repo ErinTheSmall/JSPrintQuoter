@@ -129,10 +129,12 @@
 
 
                         let scaleFactor =1 / Math.pow(10, Math.round(largestDimension*2).toString().length - 1); // calculate how much smaller we need to scale the object (e.g: 20cm cube needs to be scaled down by 10 (* 0.1))
-                        console.log(largestDimension)
+                        
+                        let oneUnit = Math.pow(10, Math.round(largestDimension*2).toString().length - 1); // calculate the size of one unit before scaling down for display
+                                    
                         largestDimension = largestDimension * scaleFactor; // update largestDimension to reflect new scale
                         geometry.scale(scaleFactor, scaleFactor, scaleFactor); //scale the geometry
-
+                        
                         gridHelperSize = Math.ceil(largestDimension *2) + Math.ceil(largestDimension * 1.1) ; //size of largest axis + 10%x2 rounded up to 1 units
 
                         camera.far = gridHelperSize * 5; // set the camera far clip plane
@@ -152,9 +154,12 @@
                         scene.add(gridXZ); //gridhelper plane
 
                         // making the scale label
-                        console.log(scaleFactor)
-                        scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + 0.25,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), "10mm")
                         
+                        
+                        scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + 0.25,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), oneUnit + "mm")
+                        
+                        const axesHelper = new THREE.AxesHelper( 1 );
+                        scene.add( axesHelper );
                     }
 
 
