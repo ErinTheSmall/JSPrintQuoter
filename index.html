@@ -331,10 +331,12 @@
                 }
 
                 function onFirstRenderChanges () { // code to call once, when the first frame of the render happens
+                    let loaderDiv = document.getElementById("loader"); // remove the loader div
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
                     let cameraPosition = cameraControls.getPosition();
                     cameraControls.setLookAt(cameraPosition.x + 4, cameraPosition.y+ 4 - 0.01, cameraPosition.z-4, 0, 0, 0, true); 
-                    
-                    cameraControls.removeEventListener( 'update', onFirstRenderChanges )
+                    cameraControls.removeEventListener( 'update', onFirstRenderChanges );
                 }
                 
                 function render() {
