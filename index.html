@@ -19,7 +19,6 @@
             <div id="labelContainer"></div>
         </div>
 		<script type="module">
-            
             import * as THREE from '/node_modules/three/build/three.module.js';
             import {STLLoader} from '/node_modules/three/examples/jsm/loaders/STLLoader.js'
             import { CSS2DRenderer, CSS2DObject } from '/node_modules/three/examples/jsm/renderers/CSS2DRenderer.js';
@@ -27,6 +26,9 @@
             
             let modelFile
             document.getElementById ("3DModelUpload").addEventListener ("change", function () {
+                let loaderDiv = document.getElementById("loaderContainer"); // re-add the loader div
+                loaderDiv.style.opacity = "100";
+                loaderDiv.style.pointerEvents = "auto";
                 let reader = new FileReader();
                 reader.readAsDataURL(this.files[0]);
                 
@@ -53,7 +55,6 @@
                 render();
 
                 function init() {
-
                     let canvasContainer = document.getElementById("canvasContainer"); // get label container div
                     let renderCanvas = document.getElementById("canvas"); // get canvas div
                     THREE.Object3D.DefaultUp.set(0, 0, 1);
