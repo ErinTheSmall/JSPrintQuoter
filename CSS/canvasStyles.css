@@ -3,6 +3,8 @@ html, body {
     margin: 0px;
 }
 
+/* START CANVAS SECTION */
+
 .label {
     color: white;
 }
@@ -12,38 +14,61 @@ html, body {
     height: 100%;
 }
 
-
-#canvasContainer canvas, div {
+#UIContainer {
     position: absolute;
+    margin: 0;
+    z-index: 2;
 }
 
-#canvasContainer div {
+#canvas{
+    position: absolute;
+    margin: 0;
+}
+
+#labelCanvas{
+    position: absolute;
+    margin: 0;
     pointer-events: none;
 }
 
 #loaderContainer {
+    position: absolute;
     background-color: black;
     transition:opacity 500ms;
     width: 100%;
     height: 100%;
-    z-index: 2;
+    z-index: 3;
 }
 
+/* END CANVAS SECTION */
+
+/* START CANVAS UI SECTION */
+
+#crossSectionSlider {
+    -webkit-appearance: slider-vertical;
+    writing-mode: bt-lr;
+}
+
+/* END CANVAS UI SECTION */
+
+/* START LOADER SECTION */
+
 .loader {
-    width: 80px;
-    height: 80px;
-    margin-left: calc(50% - 40px);
-    margin-top: calc(50% - 40px);
+    position: absolute;
+    width: 5rem;
+    height: 5rem;
+    left: calc(50% - 2.5rem);
+    top: calc(50% - 2.5rem);
 
 }
 .loader:after {
     content: " ";
     display: block;
-    width: 64px;
-    height: 64px;
-    margin: 8px;
+    width: 100%;
+    height: 100%;
+    margin: -1em;
     border-radius: 50%;
-    border: 6px solid #fff;
+    border: 1em solid #fff;
     border-color: #fff transparent;
     animation: loader 1.2s linear infinite;
 }
@@ -55,3 +80,5 @@ html, body {
         transform: rotate(360deg);
     }
 }
+
+/* END LOADER SECTION */
