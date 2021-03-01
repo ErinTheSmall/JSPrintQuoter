@@ -12,8 +12,9 @@
         <input type="file" id="3DModelUpload"/>
         
         <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
-            <div id="loader"></div>
+            <div id="loaderContainer"><div class="loader"></div></div>
             <canvas id="canvas"></canvas>
+            <div id="labelContainer"></div>
         </div>
 		<script type="module">
             
@@ -42,11 +43,10 @@
                 CameraControls.install( { THREE: THREE } ); // bind custom camera-controls library
                 let clock = new THREE.Clock();
 
-
                 let camera, scene, renderer, labelRenderer, cameraControls, plane;
                 let frontFaceStencilMat, backFaceStencilMat, planeStencilMat;
                 let scaleLabel, gridHelperSize;
-
+                
                 init();
                 render();
 
@@ -72,17 +72,24 @@
 
                     labelRenderer = new CSS2DRenderer();
                     labelRenderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
-                    canvasContainer.appendChild( labelRenderer.domElement );
+                    let labelContainer = document.getElementById("labelContainer");
+                    labelContainer.innerHTML = ''; // remove previous instance
+                    labelContainer.appendChild( labelRenderer.domElement );
 
 
                     //scene
 
                     scene = new THREE.Scene();
+                    scene.add(camera);
+                    
 
-                    let light = new THREE.HemisphereLight(0xffffff, 1,1,100);
-                    scene.add(light);
-                    let Ambient = new THREE.AmbientLight( 0xffffff, 0.15 ); // soft white light
-                    scene.add( Ambient );
+                    let hemisphere = new THREE.HemisphereLight(0xffffff, 1,1,100);
+                    scene.add(hemisphere);
+                    let ambient = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
+                    scene.add( ambient );
+                    let point = new THREE.PointLight( 0xffffff, 0.5 );
+                    point.position.set(0,0,0);
+                    camera.add(point); // add point light to the camera
 
 
                     //controls
@@ -331,12 +338,12 @@
                 }
 
                 function onFirstRenderChanges () { // code to call once, when the first frame of the render happens
-                    let loaderDiv = document.getElementById("loader"); // remove the loader div
-                    loader.style.opacity = '0';
-                    loader.style.pointerEvents = 'none';
-                    let cameraPosition = cameraControls.getPosition();
-                    cameraControls.setLookAt(cameraPosition.x + 4, cameraPosition.y+ 4 - 0.01, cameraPosition.z-4, 0, 0, 0, true); 
-                    cameraControls.removeEventListener( 'update', onFirstRenderChanges );
+                    let loaderDiv = document.getElementById("loaderContainer"); // remove the loader div
+                    loaderDiv.style.opacity = "0";
+                    loaderDiv.style.pointerEvents = "none";
+                    let cameraPosition = cameraControls.getPosition();//get cameras current position
+                    cameraControls.setLookAt(cameraPosition.x + 4, cameraPosition.y+ 4 - 0.01, cameraPosition.z-4, 0, 0, 0, true); // transition into the final camera position
+                    cameraControls.removeEventListener( "update", onFirstRenderChanges );
                 }
                 
                 function render() {
