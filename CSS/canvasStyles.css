@@ -12,6 +12,7 @@ html, body {
 #canvasContainer {
     position: relative;
     height: 100%;
+    overflow: hidden;
 }
 
 #UIContainer {
