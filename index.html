@@ -97,7 +97,7 @@
                     let ambient = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
                     scene.add( ambient );
                     let point = new THREE.PointLight( 0xffffff, 0.5 );
-                    point.position.set(0,0,0);
+                    point.position.set(0,-5,0);
                     camera.add(point); // add point light to the camera
 
 
@@ -255,8 +255,12 @@
                         document.getElementById("wireFrameView").addEventListener("change", function(){
                             if (this.checked) {
                                 mesh.material = wireframeMaterial;
+                                planeStencilMat.transparent = true;
+                                planeStencilMat.opacity = 0.5;
                             } else {
                                 mesh.material = solidMaterial;
+                                planeStencilMat.transparent = false;
+                                planeStencilMat.opacity = 1;
                             }
                             renderer.render( scene, camera );
                         }); 
@@ -309,8 +313,14 @@
                     // draw the plane everywhere that the stencil buffer != 0, which will
                     // only be in the clipped region where back faces are visible.
                     planeStencilMat = new THREE.MeshPhongMaterial({ 
-                            color: 0xF2A62C, 
-                            shininess: 0 ,
+                            color: 0x606e71, 
+                            specular: 0x050505, 
+                            shininess: 50 ,
+                            clipShadows: true,
+                            side: THREE.DoubleSide,
+                            polygonOffset: true,
+                            polygonOffsetFactor: 1,
+                            polygonOffsetUnits: 1
                         });
                     planeStencilMat.stencilWrite = true;
                     planeStencilMat.stencilRef = 0;
