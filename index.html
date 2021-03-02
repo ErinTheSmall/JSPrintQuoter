@@ -84,8 +84,11 @@
 
 
                     //scene
-
+                    
                     scene = new THREE.Scene();
+                    while(scene.children.length > 0){  // remove previous scene if it exists
+                        scene.remove(scene.children[0]); 
+                    }
                     scene.add(camera);
                     
 
@@ -236,10 +239,8 @@
 
                     function UIManager(geometry, mesh) { //handles all ui interaction, other than slider
                         let solidMaterial = mesh.material; // set the solid material to the one onload
-                        let wireframeMaterial = mesh.material = new THREE.MeshLambertMaterial({ // set wireframe material
+                        let wireframeMaterial = new THREE.MeshLambertMaterial({ // set wireframe material
                             color: 0x404A4C, 
-                            specular: 0x050505, 
-                            shininess: 50 ,
                             clippingPlanes: [plane], //TODO move this into the crossSection function
                             clipShadows: true,
                             side: THREE.DoubleSide,
