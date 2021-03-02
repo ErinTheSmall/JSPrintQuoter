@@ -17,8 +17,12 @@
                 <button id="zoomIn">+</button>
                 <button id="zoomOut">-</button>
                 <button id="homeView">home</button>
-                <input id="wireFrameView" type="checkbox">
+                <input id="wireFrameView" type="radio" name="viewMode">
                 <label for="wireFrameView">wireframe</label>
+                <input id="xRayView" type="radio" name="viewMode">
+                <label for="xRayView">xRay</label>
+                <input id="solidView" type="radio" name="viewMode">
+                <label for="solidView">solid</label>
             </div>
             <canvas id="canvas"></canvas>
             <div id="labelContainer"></div>
@@ -165,8 +169,8 @@
 
 
                         let edges = new THREE.EdgesGeometry(geometry, 75);
-                        let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [crossSectionPlane] } ) );
-                        scene.add( line ); // edge highlighting
+                        let edgeGeom = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [crossSectionPlane] } ) );
+                        scene.add(edgeGeom); // edge highlighting
 
                         let gridXZ = new THREE.GridHelper(gridHelperSize, gridHelperSize, 0xdedede, 0xffffff);
                         gridXZ.rotation.x = Math.PI/2;
@@ -238,32 +242,39 @@
 
 
                     function UIManager(geometry, mesh) { //handles all ui interaction, other than slider
-                        let solidMaterial = mesh.material; // set the solid material to the one onload
-                        let wireframeMaterial = new THREE.MeshLambertMaterial({ // set wireframe material
-                            color: 0x404A4C, 
-                            clippingPlanes: [crossSectionPlane], //TODO move this into the crossSection function
-                            clipShadows: true,
-                            side: THREE.DoubleSide,
-                            polygonOffset: true,
-                            polygonOffsetFactor: 1,
-                            polygonOffsetUnits: 1,
-                            wireframe: true
-                        });
-                        document.getElementById("zoomIn").addEventListener("click", function(){cameraControls.dolly(  1, true )});
-                        document.getElementById("zoomOut").addEventListener("click", function(){cameraControls.dolly(  -1, true )}); 
+                        let largestDimension = Math.max(geometry.boundingBox.max.x, 
+                        geometry.boundingBox.max.y, 
+                        geometry.boundingBox.max.z) // calculate the largest dimensions
+
+                        document.getElementById("zoomIn").addEventListener("click", function(){cameraControls.dolly(  largestDimension, true )});
+                        document.getElementById("zoomOut").addEventListener("click", function(){cameraControls.dolly(  -largestDimension, true )}); 
                         document.getElementById("homeView").addEventListener("click", function(){cameraControls.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);}); 
-                        document.getElementById("wireFrameView").addEventListener("change", function(){
-                            if (this.checked) {
-                                mesh.material = wireframeMaterial;
-                                planeStencilMat.transparent = true;
-                                planeStencilMat.opacity = 0.5;
-                            } else {
-                                mesh.material = solidMaterial;
-                                planeStencilMat.transparent = false;
-                                planeStencilMat.opacity = 1;
-                            }
+                        document.getElementById("wireFrameView").addEventListener("click", function(){
+                            mesh.material.wireframe = true;
+                            mesh.material.transparent = false;
+                            planeStencilMat.transparent = true;
+                            planeStencilMat.opacity = 0.5;
                             renderer.render( scene, camera );
-                        }); 
+                        });
+                        
+                        document.getElementById("xRayView").addEventListener("click", function(){
+                            mesh.material.wireframe = false;
+                            mesh.material.transparent = true;
+                            mesh.material.opacity = 0.3;
+                            planeStencilMat.transparent = true;
+                            planeStencilMat.opacity = 0.3;
+                            renderer.render( scene, camera );
+                        });
+                        
+                        document.getElementById("solidView").addEventListener("click", function(){
+                            mesh.material.wireframe = false;
+                            mesh.material.transparent = false;
+                            mesh.material.opacity = 1;
+                            planeStencilMat.transparent = false;
+                            planeStencilMat.opacity = 1;
+                            renderer.render( scene, camera );
+                        });
+                        
                     }
 
                     // STL Loader
