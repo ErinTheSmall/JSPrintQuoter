@@ -14,6 +14,11 @@
             <div id="loaderContainer"><div class="loader"></div></div>
             <div id="UIContainer">
                 <input id="crossSectionSlider" orient="vertical" type="range" min="0" max="1000" value="1000" id="crossSectionSlider">
+                <button id="zoomIn">+</button>
+                <button id="zoomOut">-</button>
+                <button id="homeView">home</button>
+                <input id="wireFrameView" type="checkbox">
+                <label for="wireFrameView">wireframe</label>
             </div>
             <canvas id="canvas"></canvas>
             <div id="labelContainer"></div>
@@ -46,7 +51,7 @@
                 CameraControls.install( { THREE: THREE } ); // bind custom camera-controls library
                 let clock = new THREE.Clock();
 
-                let camera, scene, renderer, labelRenderer, cameraControls, plane;
+                let camera, cameraHome, scene, renderer, labelRenderer, cameraControls, plane;
                 let frontFaceStencilMat, backFaceStencilMat, planeStencilMat;
                 let scaleLabel, gridHelperSize;
                 
@@ -150,7 +155,8 @@
                         camera.updateProjectionMatrix(); // updates the camera stuff so it works
                         cameraControls.maxDistance = gridHelperSize * 4; // sets the max distance the user can move the camera out
                         cameraControls.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
-                        cameraControls.setLookAt(-gridHelperSize, -gridHelperSize*1.1, gridHelperSize/2.5, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
+                        cameraHome = new THREE.Vector3(-gridHelperSize, -gridHelperSize*1.1, gridHelperSize/2.5) //set the home point of the camera to global
+                        cameraControls.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
                         cameraControls.dolly(2, false);
                         cameraControls.addEventListener("update", onFirstRenderChanges);
 
@@ -228,7 +234,32 @@
                     }
 
 
-
+                    function UIManager(geometry, mesh) { //handles all ui interaction, other than slider
+                        let solidMaterial = mesh.material; // set the solid material to the one onload
+                        let wireframeMaterial = mesh.material = new THREE.MeshLambertMaterial({ // set wireframe material
+                            color: 0x404A4C, 
+                            specular: 0x050505, 
+                            shininess: 50 ,
+                            clippingPlanes: [plane], //TODO move this into the crossSection function
+                            clipShadows: true,
+                            side: THREE.DoubleSide,
+                            polygonOffset: true,
+                            polygonOffsetFactor: 1,
+                            polygonOffsetUnits: 1,
+                            wireframe: true
+                        });
+                        document.getElementById("zoomIn").addEventListener("click", function(){cameraControls.dolly(  1, true )});
+                        document.getElementById("zoomOut").addEventListener("click", function(){cameraControls.dolly(  -1, true )}); 
+                        document.getElementById("homeView").addEventListener("click", function(){cameraControls.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);}); 
+                        document.getElementById("wireFrameView").addEventListener("change", function(){
+                            if (this.checked) {
+                                mesh.material = wireframeMaterial;
+                            } else {
+                                mesh.material = solidMaterial;
+                            }
+                            renderer.render( scene, camera );
+                        }); 
+                    }
 
                     // STL Loader
 
@@ -238,6 +269,7 @@
                         let mesh = loadMesh(geometry);
                         helpers(geometry, mesh);
                         crossSection(geometry, mesh);
+                        UIManager(geometry, mesh);
                     });
 
                     window.addEventListener( 'resize', onWindowResize );
