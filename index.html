@@ -34,7 +34,6 @@
                 
                 reader.addEventListener("load", function () {
                     modelFile = reader.result;
-                    console.log(modelFile)
                     viewer();
                 }, false);
 
@@ -75,8 +74,7 @@
 
                     labelRenderer = new CSS2DRenderer();
                     labelRenderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
-                    let labelContainer = document.getElementById("labelContainer");
-                    labelContainer.innerHTML = ''; // remove previous instance
+                    document.getElementById("labelContainer").innerHTML = ''; //clear previous instance
                     labelContainer.appendChild( labelRenderer.domElement );
 
 
@@ -107,7 +105,6 @@
 
                         geometry.computeBoundingBox();                    
                         let planeNormal = new THREE.Vector3(0, 0,-1).normalize(); //clipping planes
-                        console.log(planeNormal)
                         plane = new THREE.Plane(planeNormal, geometry.boundingBox.max.z/2 + 0.1);
 
                         let material = new THREE.MeshPhongMaterial({ 
@@ -153,7 +150,8 @@
                         camera.updateProjectionMatrix(); // updates the camera stuff so it works
                         cameraControls.maxDistance = gridHelperSize * 4; // sets the max distance the user can move the camera out
                         cameraControls.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
-                        cameraControls.setLookAt(-gridHelperSize-4, -gridHelperSize-4 -0.01, gridHelperSize+4, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
+                        cameraControls.setLookAt(-gridHelperSize, -gridHelperSize*1.1, gridHelperSize/2.5, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
+                        cameraControls.dolly(2, false);
                         cameraControls.addEventListener("update", onFirstRenderChanges);
 
 
@@ -175,7 +173,9 @@
 
 
                     function crossSection(geometry, mesh) {
-
+                        
+                        document.getElementById("crossSectionSlider").value = "1000";
+                        
                         let planes = [ plane ];                    
                             // Set up the stencil materials
                         initStencilMaterials();
@@ -215,7 +215,7 @@
                                 plane.constant = currentZ + 1;
                             } else if (value == 0) { // if the slider is all the way down, move both the colour plane and clip plane to the lowest safe positions
                                 planeMesh.visible = true;
-                                plane.constant = currentZ + 0.01;
+                                plane.constant = currentZ + 0.001;
                                 planeMesh.position.set(0,0,currentZ + 0.01);
 
                             } else { 
@@ -345,7 +345,7 @@
                     loaderDiv.style.opacity = "0";
                     loaderDiv.style.pointerEvents = "none";
                     let cameraPosition = cameraControls.getPosition();//get cameras current position
-                    cameraControls.setLookAt(cameraPosition.x + 4, cameraPosition.y+ 4 - 0.01, cameraPosition.z-4, 0, 0, 0, true); // transition into the final camera position
+                    cameraControls.dolly(-2, true); // transition into the final camera position
                     cameraControls.removeEventListener( "update", onFirstRenderChanges );
                 }
                 
