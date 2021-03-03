@@ -91,6 +91,7 @@
                     //scene
                     
                     scene = new THREE.Scene();
+                    scene.background = new THREE.Color( 0x2a2a2a );
                     while(scene.children.length > 0){  // remove previous scene if it exists
                         scene.remove(scene.children[0]); 
                     }
@@ -401,8 +402,8 @@
                     {
                         uniforms: {
                             "c": { type: "f", value: 1.0 },
-                            "p": { type: "f", value: 1 },
-                            glowColor: { type: "c", value: new THREE.Color(0xa7a2a2) },
+                            "p": { type: "f", value: 0.75 },
+                            glowColor: { type: "c", value: new THREE.Color(0x838282) },
                             viewVector: { type: "v3", value: camera.position }
                         },
                         vertexShader: vertexShader,
