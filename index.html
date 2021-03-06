@@ -118,14 +118,11 @@
                     function loadMesh(geometry) {
 
                         geometry.computeBoundingBox();                    
-                        let planeNormal = new THREE.Vector3(0, 0,-1).normalize(); //clipping planes
-                        crossSectionPlane = new THREE.Plane(planeNormal, geometry.boundingBox.max.z/2 + 0.1);
 
                         let material = new THREE.MeshPhongMaterial({ 
                             color: 0x404A4C, 
                             specular: 0x050505, 
                             shininess: 50 ,
-                            clippingPlanes: [crossSectionPlane], //TODO move this into the crossSection function
                             clipShadows: true,
                             side: THREE.DoubleSide,
                             polygonOffset: true,
@@ -155,6 +152,12 @@
                                     
                         largestDimension = largestDimension * scaleFactor; // update largestDimension to reflect new scale
                         geometry.scale(scaleFactor, scaleFactor, scaleFactor); //scale the geometry
+                        
+                        crossSectionPlane = new THREE.Plane(new THREE.Vector3(0, 0,-1), geometry.boundingBox.max.z + 0.01); // create clipping plane
+                        mesh.material.clippingPlanes = [crossSectionPlane]; // add the clipping plane to the model
+                        
+                        const helper = new THREE.PlaneHelper( crossSectionPlane, 1, 0xffff00 );
+                        scene.add( helper );
                         
                         gridHelperSize = Math.ceil(largestDimension *2) + Math.ceil(largestDimension * 1.1) ; //size of largest axis + 10%x2 rounded up to 1 units
 
