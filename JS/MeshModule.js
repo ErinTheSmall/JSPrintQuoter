@@ -463,7 +463,6 @@ function viewer() {
         let loaderDiv = document.getElementById("loaderContainer"); // remove the loader div
         loaderDiv.style.opacity = "0";
         loaderDiv.style.pointerEvents = "none";
-        let cameraPosition = cameraControls.getPosition();//get cameras current position
         cameraControls.dolly(-2, true); // transition into the final camera position
         cameraControls.removeEventListener( "update", onFirstRenderChanges );
     }
