@@ -260,22 +260,31 @@
                         document.getElementById("zoomOut").addEventListener("click", function(){cameraControls.dolly(  -largestDimension, true )}); 
                         document.getElementById("homeView").addEventListener("click", function(){cameraControls.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);}); 
                         document.getElementById("wireFrameView").addEventListener("click", function(){
+                        function defaultView () {
                             mesh.material = defaultMat;
+                            edgeGeom.material.transparent = false;
+                            edgeGeom.material.opacity = 1; //get edge geometry
+                            mesh.material.wireframe = false;
+                            mesh.material.transparent = false;
+                            mesh.material.opacity = 1;
+                            planeStencilMat = defaultCrossSectionMat;
+                            planeStencilMat.opacity = 1;
+                            
+                        }
+                        
+                        document.getElementById("wireFrameView").addEventListener("click", function(){
+                            defaultView();
                             edgeGeom.material.transparent = true;
                             edgeGeom.material.opacity = 0; //get edge geometry
                             mesh.material.wireframe = true;
-                            mesh.material.transparent = false;
-                            planeStencilMat = defaultCrossSectionMat;
                             planeStencilMat.transparent = true;
                             planeStencilMat.opacity = 0.5;
                             renderer.render( scene, camera );
                         });
                         
                         document.getElementById("xRayView").addEventListener("click", function(){
+                            defaultView();
                             mesh.material = xrayMat;
-                            edgeGeom.material.transparent = false;
-                            edgeGeom.material.opacity = 1; //get edge geometry
-                            mesh.material.wireframe = false;
                             mesh.material.transparent = true;
                             mesh.material.opacity = 0.3;
                             planeStencilMat.material = xrayMat;
@@ -285,15 +294,7 @@
                         });
                         
                         document.getElementById("solidView").addEventListener("click", function(){
-                            mesh.material = defaultMat;
-                            edgeGeom.material.transparent = false;
-                            edgeGeom.material.opacity = 1; //get edge geometry
-                            mesh.material.wireframe = false;
-                            mesh.material.transparent = false;
-                            mesh.material.opacity = 1;
-                            planeStencilMat = defaultCrossSectionMat;
-                            planeStencilMat.transparent = false;
-                            planeStencilMat.opacity = 1;
+                            defaultView();
                             renderer.render( scene, camera );
                         });
                         
