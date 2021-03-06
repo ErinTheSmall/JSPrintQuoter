@@ -126,6 +126,8 @@
                             clipShadows: true,
                             side: THREE.DoubleSide,
                             polygonOffset: true,
+                            polygonOffsetFactor: 1,
+                            polygonOffsetUnits: 1
                         });
                         let mesh = new THREE.Mesh( geometry, material );
                         scene.add( mesh );
