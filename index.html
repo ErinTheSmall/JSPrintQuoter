@@ -57,7 +57,6 @@
                 let clock = new THREE.Clock();
 
                 let camera, cameraHome, scene, renderer, labelRenderer, cameraControls, crossSectionPlane;
-                let frontFaceStencilMat, backFaceStencilMat, planeStencilMat;
                 let scaleLabel, gridHelperSize;
                 
                 init();
@@ -194,7 +193,23 @@
                         
                         let planes = [ crossSectionPlane ];                    
                             // Set up the stencil materials
-                        initStencilMaterials();
+                        
+                        let planeStencilMat = new THREE.MeshPhongMaterial({ //declare material of the plane stencil
+                            color: 0x606e71, 
+                            specular: 0x050505, 
+                            shininess: 50 ,
+                            clipShadows: true,
+                            side: THREE.DoubleSide,
+                            polygonOffset: true,
+                            polygonOffsetFactor: -2,
+                            polygonOffsetUnits: -2
+                        });
+                        
+                        let stencilMats = initStencilMaterials(planeStencilMat);
+                        
+                        let backFaceStencilMat = stencilMats[0];
+                        let frontFaceStencilMat = stencilMats[1];
+                        planeStencilMat = stencilMats[2];
                         
                         // Clip the cylinder stencil materials
                         frontFaceStencilMat.clippingPlanes = planes;
@@ -215,6 +230,7 @@
                         let planeMesh = new THREE.Mesh(planeGeom, planeStencilMat);
                         planeMesh.renderOrder = 1;
                         planeMesh.visible = false;
+                        planeMesh.name = "crossSectionPlaneMesh";
                         scene.add(planeMesh);
 
                         crossSectionSlider.addEventListener('input', (event) => {
@@ -250,9 +266,13 @@
                         geometry.boundingBox.max.z) // calculate the largest dimensions
                         
                         let edgeGeom = scene.getObjectByName("edgeGeom"); // get edge geometry
+                        let planeMesh = scene.getObjectByName("crossSectionPlaneMesh"); //get plane geometry
                         let defaultMat = mesh.material;
-                        let defaultCrossSectionMat = planeStencilMat
-                        let xrayMat = initXrayMaterials();
+                        let defaultCrossSectionMat = planeMesh.material;
+                        let xrayMatBody = initXrayMaterials(true); // init xraymat with clippingplanes on
+                        
+                        let stencilMats = initStencilMaterials(initXrayMaterials(false)); // call initstencilmats with xray material as argument (calling initxraymaterials with clipping planes disabled)
+                        let xrayMatPlane = stencilMats[2]; // set xray plane material to the 3rd returned argument (planestencilmat)
 
 
 
@@ -267,8 +287,8 @@
                             mesh.material.wireframe = false;
                             mesh.material.transparent = false;
                             mesh.material.opacity = 1;
-                            planeStencilMat = defaultCrossSectionMat;
-                            planeStencilMat.opacity = 1;
+                            planeMesh.material = defaultCrossSectionMat;
+                            planeMesh.material.opacity = 1;
                             
                         }
                         
@@ -277,19 +297,20 @@
                             edgeGeom.material.transparent = true;
                             edgeGeom.material.opacity = 0; //get edge geometry
                             mesh.material.wireframe = true;
-                            planeStencilMat.transparent = true;
-                            planeStencilMat.opacity = 0.5;
+                            planeMesh.material.transparent = true;
+                            planeMesh.material.opacity = 0.5;
                             renderer.render( scene, camera );
                         });
                         
                         document.getElementById("xRayView").addEventListener("click", function(){
                             defaultView();
-                            mesh.material = xrayMat;
+                            mesh.material = xrayMatBody;
                             mesh.material.transparent = true;
                             mesh.material.opacity = 0.3;
-                            planeStencilMat.material = xrayMat;
-                            planeStencilMat.transparent = true;
-                            planeStencilMat.opacity = 0.3;
+                            planeMesh.material = xrayMatPlane;
+                            planeMesh.material.clippingPlanes = [];
+                            planeMesh.material.transparent = true;
+                            planeMesh.material.opacity = 0.3;
                             renderer.render( scene, camera );
                         });
                         
@@ -314,11 +335,11 @@
                     window.addEventListener( 'resize', onWindowResize );
                 }
 
-                function initStencilMaterials() {
+                function initStencilMaterials(planeStencilMat) {
                         // PASS 1
                     // everywhere that the back faces are visible (clipped region) the stencil
                     // buffer is incremented by 1.
-                    backFaceStencilMat = new THREE.MeshBasicMaterial();
+                    let backFaceStencilMat = new THREE.MeshBasicMaterial();
                     backFaceStencilMat.depthWrite = false;
                     backFaceStencilMat.depthTest = false;
                     backFaceStencilMat.colorWrite = false;
@@ -332,7 +353,7 @@
                         // PASS 2
                     // everywhere that the front faces are visible the stencil
                     // buffer is decremented back to 0.
-                    frontFaceStencilMat = new THREE.MeshBasicMaterial();
+                    let frontFaceStencilMat = new THREE.MeshBasicMaterial();
                     frontFaceStencilMat.depthWrite = false;
                     frontFaceStencilMat.depthTest = false;
                     frontFaceStencilMat.colorWrite = false;
@@ -346,25 +367,17 @@
                         // PASS 3
                     // draw the plane everywhere that the stencil buffer != 0, which will
                     // only be in the clipped region where back faces are visible.
-                    planeStencilMat = new THREE.MeshPhongMaterial({ 
-                            color: 0x606e71, 
-                            specular: 0x050505, 
-                            shininess: 50 ,
-                            clipShadows: true,
-                            side: THREE.DoubleSide,
-                            polygonOffset: true,
-                            polygonOffsetFactor: -2,
-                            polygonOffsetUnits: -2
-                        });
                     planeStencilMat.stencilWrite = true;
                     planeStencilMat.stencilRef = 0;
                     planeStencilMat.stencilFunc = THREE.NotEqualStencilFunc;
                     planeStencilMat.stencilFail = THREE.ReplaceStencilOp;
                     planeStencilMat.stencilZFail = THREE.ReplaceStencilOp;
                     planeStencilMat.stencilZPass = THREE.ReplaceStencilOp;
+                    
+                    return [backFaceStencilMat, frontFaceStencilMat, planeStencilMat];
                 }
                 
-                function initXrayMaterials() {
+                function initXrayMaterials(clippingPlanes) {
                     let vertexShader = `
                         uniform float p;
                         varying float intensity;
@@ -413,10 +426,14 @@
                         blending: THREE.AdditiveBlending,
                         transparent: true,
                         clipping: true,
-                        clippingPlanes: [crossSectionPlane],
                         opacity: 0.5,
                         depthWrite: false
                     });
+                    
+                    if (clippingPlanes) {
+                        xrayMaterial.clippingPlanes = [crossSectionPlane];
+                    }
+                    
                     return xrayMaterial;
                 }
 
