@@ -171,7 +171,7 @@
 
 
                         let edges = new THREE.EdgesGeometry(geometry, 75);
-                        let edgeGeom = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xdedede, clippingPlanes: [crossSectionPlane] } ) );
+                        let edgeGeom = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xacabab, clippingPlanes: [crossSectionPlane] } ) );
                         edgeGeom.name = "edgeGeom";
                         scene.add(edgeGeom); // edge highlighting
 
@@ -402,14 +402,14 @@
                     var xrayMaterial = new THREE.ShaderMaterial(
                     {
                         uniforms: {
-                            "c": { type: "f", value: 1.0 },
-                            "p": { type: "f", value: 0.75 },
-                            glowColor: { type: "c", value: new THREE.Color(0x838282) },
+                            "c": { type: "f", value: 0.5 },
+                            "p": { type: "f", value: 1 },
+                            glowColor: { type: "c", value: new THREE.Color(0x575757) },
                             viewVector: { type: "v3", value: camera.position }
                         },
                         vertexShader: vertexShader,
                         fragmentShader: fragmentShader,
-                        side: THREE.FrontSide,
+                        side: THREE.DoubleSide,
                         blending: THREE.AdditiveBlending,
                         transparent: true,
                         clipping: true,
