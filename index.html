@@ -14,20 +14,20 @@
         <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
             <div id="loaderContainer"><div class="loader"></div></div>
             <div id="UIContainer">
-                <input id="crossSectionSlider" orient="vertical" type="range" min="0" max="1000" value="1000" id="crossSectionSlider">
+                <input id="crossSectionSlider" orient="vertical" type="range" min="0" max="1000" value="1000" id="crossSectionSlider" autocomplete="off">
                 <button id="zoomIn">+</button>
                 <button id="zoomOut">-</button>
                 <button id="homeView">home</button>
-                <input id="wireFrameView" type="radio" name="viewMode">
-                <label for="wireFrameView">wireframe</label>
-                <input id="xRayView" type="radio" name="viewMode">
-                <label for="xRayView">xRay</label>
-                <input id="solidView" type="radio" name="viewMode">
+                <input id="solidView" type="radio" name="viewMode" checked="checked" autocomplete="off">
                 <label for="solidView">solid</label>
-                <input id="orthographicCam" type="radio" name="camera">
-                <label for="orthographicCam">Orthographic</label>
-                <input id="perspectiveCam" type="radio" name="camera">
+                <input id="wireFrameView" type="radio" name="viewMode" autocomplete="off">
+                <label for="wireFrameView">wireframe</label>
+                <input id="xRayView" type="radio" name="viewMode" autocomplete="off">
+                <label for="xRayView">xRay</label>
+                <input id="perspectiveCam" type="radio" name="camera" checked="checked" autocomplete="off">
                 <label for="perspectiveCam">Perspective</label>
+                <input id="orthographicCam" type="radio" name="camera" autocomplete="off">
+                <label for="orthographicCam">Orthographic</label>
             </div>
             <canvas id="canvas"></canvas>
             <div id="labelContainer"></div>
