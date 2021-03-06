@@ -181,7 +181,7 @@
                         // making the scale label
                         
                         
-                        scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + 0.25,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), oneUnit + "mm")
+                        scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + 0.25,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), oneUnit + "mm") // make scale label
                         
                     }
 
@@ -193,7 +193,7 @@
                         let planes = [ crossSectionPlane ];                    
                             // Set up the stencil materials
                         initStencilMaterials();
-
+                        
                         // Clip the cylinder stencil materials
                         frontFaceStencilMat.clippingPlanes = planes;
                         backFaceStencilMat.clippingPlanes = planes;
