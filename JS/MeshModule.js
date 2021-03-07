@@ -133,6 +133,7 @@ function viewer() {
             cameraPerspective.far = gridHelperSize * 5; // set the camera far clip plane
             cameraPerspective.updateProjectionMatrix(); // updates the camera stuff so it works
             cameraControlsPerspective.maxDistance = gridHelperSize * 4; // sets the max distance the user can move the camera out
+            
             cameraControlsOrthographic.minZoom = 0.37735360253530714;
             cameraControlsPerspective.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
             cameraControlsOrthographic.maxZoom = 31.082679163805047;
@@ -255,14 +256,24 @@ function viewer() {
             let stencilMats = initStencilMaterials(initXrayMaterials(false)); // call initstencilmats with xray material as argument (calling initxraymaterials with clipping planes disabled)
             let xrayMatPlane = stencilMats[2]; // set xray plane material to the 3rd returned argument (planestencilmat)
             cameraOrthographic.visible = false;
+            
+            function dollyZoom(amount) {
+                let dollyScale = Math.pow(0.95, -amount * cameraControlsPerspective.dollySpeed); // calculate equivelant dolly
+                let zoomScale = Math.pow(0.95, amount * cameraControlsPerspective.dollySpeed);//calculate equivelant zoom
+                let dollyDistance = cameraControlsPerspective.distance * dollyScale;
+                let zoomAmount = cameraOrthographic.zoom * zoomScale;
+                if (dollyDistance > cameraControlsOrthographic.minDistance && dollyDistance < cameraControlsOrthographic.maxDistance) { // check if dolly is too far in or out
+                    cameraControlsPerspective.dollyTo(dollyDistance, true);
+                    cameraControlsOrthographic.zoomTo(zoomAmount, true);
+                };
+            };
 
-
-            document.getElementById("zoomIn").addEventListener("click", function(){cameraControls.dolly(  largestDimension, true )});
-            document.getElementById("zoomOut").addEventListener("click", function(){cameraControls.dolly(  -largestDimension, true )}); 
+            document.getElementById("zoomIn").addEventListener("click", function(){dollyZoom(-5);});
+            document.getElementById("zoomOut").addEventListener("click", function(){dollyZoom(5);}); 
             document.getElementById("homeView").addEventListener("click", function(){
                 cameraControlsPerspective.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);
                 cameraControlsOrthographic.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);
-                cameraControlsOrthographic.zoomTo(1, true);
+                cameraControlsOrthographic.zoomTo(1, true);  
             }); 
             document.getElementById("orthographicCam").addEventListener("click", function(){
                 activeCamera = cameraOrthographic;
@@ -513,7 +524,6 @@ function viewer() {
         requestAnimationFrame(render);
 
         if (haveControlsPerspectiveUpdated || haveControlsOrthographicUpdated) {
-
             updateScene();
             renderer.render( scene, activeCamera );
             labelRenderer.render( scene, activeCamera );
