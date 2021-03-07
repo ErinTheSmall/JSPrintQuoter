@@ -25,7 +25,7 @@ function viewer() {
     CameraControls.install( { THREE: THREE } ); // bind custom camera-controls library
     let clock = new THREE.Clock();
 
-    let camera, cameraHome, scene, renderer, labelRenderer, cameraControls, crossSectionPlane;
+    let cameraPerspective, cameraOrthographic, activeCamera, cameraHome, scene, renderer, labelRenderer, cameraControlsPerspective, cameraControlsOrthographic, crossSectionPlane;
     let scaleLabel, gridHelperSize;
 
     init();
@@ -37,10 +37,10 @@ function viewer() {
         THREE.Object3D.DefaultUp.set(0, 0, 1); // set z up by default
 
         // camera
-
-        camera = new THREE.PerspectiveCamera(70, canvasContainer.clientWidth/canvasContainer.clientHeight); // create new camera with width and height of the canvascontainer
-        camera.position.set( -10, -10, 10 ); //set camera position to 50 to transition in when the boundingbox is computer in helpers()
-
+        cameraPerspective = new THREE.PerspectiveCamera(70, canvasContainer.clientWidth/canvasContainer.clientHeight); // create new camera with width and height of the canvascontainer
+        cameraOrthographic = new THREE.OrthographicCamera( -canvasContainer.clientWidth / 2, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2, -canvasContainer.clientHeight / 2, 0.1, 1000 );
+        
+        activeCamera = cameraPerspective;
         // renderer
 
         renderer = new THREE.WebGLRenderer({ canvas: renderCanvas, antialias: true, alpha: false } );
@@ -63,21 +63,23 @@ function viewer() {
         while(scene.children.length > 0){  // remove previous scene if it exists
             scene.remove(scene.children[0]); 
         }
-        scene.add(camera);
+        scene.add(cameraPerspective);
+        
+        scene.add(cameraOrthographic);
 
 
         let hemisphere = new THREE.HemisphereLight(0xffffff, 1,1,100);
         scene.add(hemisphere);
         let ambient = new THREE.AmbientLight( 0xffffff, 0.2 ); // soft white light
         scene.add( ambient );
-        let point = new THREE.PointLight( 0xffffff, 0.5 );
-        point.position.set(0,-5,0);
-        camera.add(point); // add point light to the camera
+        cameraPerspective.add(new THREE.PointLight( 0xffffff, 0.5 )); // add point light to the camera
+        cameraOrthographic.add(new THREE.PointLight( 0xffffff, 0.5 )); // add point light to the camera
 
 
         //controls
 
-        cameraControls = new CameraControls( camera, renderer.domElement );
+        cameraControlsPerspective = new CameraControls( cameraPerspective, renderer.domElement );
+        cameraControlsOrthographic = new CameraControls( cameraOrthographic, renderer.domElement );
 
 
 
@@ -128,14 +130,27 @@ function viewer() {
 
             gridHelperSize = Math.ceil(largestDimension *2) + Math.ceil(largestDimension * 1.1) ; //size of largest axis + 10%x2 rounded up to 1 units
 
-            camera.far = gridHelperSize * 5; // set the camera far clip plane
-            camera.updateProjectionMatrix(); // updates the camera stuff so it works
-            cameraControls.maxDistance = gridHelperSize * 4; // sets the max distance the user can move the camera out
-            cameraControls.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
+            cameraPerspective.far = gridHelperSize * 5; // set the camera far clip plane
+            cameraPerspective.updateProjectionMatrix(); // updates the camera stuff so it works
+            cameraControlsPerspective.maxDistance = gridHelperSize * 4; // sets the max distance the user can move the camera out
+            cameraControlsOrthographic.minZoom = 0.37735360253530714;
+            cameraControlsPerspective.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
+            cameraControlsOrthographic.maxZoom = 31.082679163805047;
             cameraHome = new THREE.Vector3(-gridHelperSize, -gridHelperSize*1.1, gridHelperSize/2.5) //set the home point of the camera to global
-            cameraControls.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
-            cameraControls.dolly(2, false);
-            cameraControls.addEventListener("update", onFirstRenderChanges);
+            cameraControlsPerspective.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
+            cameraControlsOrthographic.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
+            
+            let windowAspect = canvasContainer.clientWidth/canvasContainer.clientHeight; // auto fit orthographic camera
+            cameraOrthographic.top = gridHelperSize;
+            cameraOrthographic.bottom = - gridHelperSize;
+            cameraOrthographic.left = - gridHelperSize * windowAspect;
+            cameraOrthographic.right = gridHelperSize * windowAspect;
+            cameraOrthographic.updateProjectionMatrix();
+            
+            
+            cameraControlsPerspective.dolly(2, false);
+            cameraControlsPerspective.addEventListener("update", onFirstRenderChanges);
+            cameraControlsOrthographic.addEventListener("update", onFirstRenderChanges);
 
 
             let edges = new THREE.EdgesGeometry(geometry, 75);
@@ -204,7 +219,7 @@ function viewer() {
 
                 let value = parseFloat(event.target.value);
 
-                let factor = 1000 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 100 is than the size
+                let factor = 1000 / (geometry.boundingBox.max.z * 2) //calculate how many times bigger 1000 is than the size
                 let currentZ = (value / factor) - geometry.boundingBox.max.z; //divide by that factor, to scale, then shift down by half of the size, because the midpoint is 0 
                 crossSectionPlane.constant = currentZ;
                 planeMesh.position.set(0,0,currentZ);
@@ -221,7 +236,7 @@ function viewer() {
                     planeMesh.visible = true; // set the colour plane to visible if anywhere inbetween max and min
                 }
 
-                renderer.render( scene, camera );
+                renderer.render( scene, activeCamera );
 
             });  
         }
@@ -239,18 +254,30 @@ function viewer() {
             let xrayMatBody = initXrayMaterials(true); // init xraymat with clippingplanes on
             let stencilMats = initStencilMaterials(initXrayMaterials(false)); // call initstencilmats with xray material as argument (calling initxraymaterials with clipping planes disabled)
             let xrayMatPlane = stencilMats[2]; // set xray plane material to the 3rd returned argument (planestencilmat)
+            cameraOrthographic.visible = false;
+
 
             document.getElementById("zoomIn").addEventListener("click", function(){cameraControls.dolly(  largestDimension, true )});
             document.getElementById("zoomOut").addEventListener("click", function(){cameraControls.dolly(  -largestDimension, true )}); 
-            document.getElementById("homeView").addEventListener("click", function(){cameraControls.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);}); 
+            document.getElementById("homeView").addEventListener("click", function(){
+                cameraControlsPerspective.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);
+                cameraControlsOrthographic.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, true);
+                cameraControlsOrthographic.zoomTo(1, true);
+            }); 
             document.getElementById("orthographicCam").addEventListener("click", function(){
-                camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
+                activeCamera = cameraOrthographic;
+                cameraPerspective.visible = false;
+                cameraOrthographic.visible = true;
+                renderer.render( scene, activeCamera );
+                labelRenderer.render( scene, activeCamera );
             });
             document.getElementById("perspectiveCam").addEventListener("click", function(){
-                camera = new THREE.PerspectiveCamera(70, canvasContainer.clientWidth/canvasContainer.clientHeight);
-
+                activeCamera = cameraPerspective;
+                cameraOrthographic.visible = false;
+                cameraPerspective.visible = true;
+                renderer.render( scene, activeCamera );
+                labelRenderer.render( scene, activeCamera );
             });
-
             function defaultView () {
                 mesh.material = defaultMat;
                 edgeGeom.material.transparent = false;
@@ -270,7 +297,7 @@ function viewer() {
                 mesh.material.wireframe = true;
                 planeMesh.material.transparent = true;
                 planeMesh.material.opacity = 0.5;
-                renderer.render( scene, camera );
+                renderer.render( scene, activeCamera );
             });
 
             document.getElementById("xRayView").addEventListener("click", function(){
@@ -282,12 +309,12 @@ function viewer() {
                 planeMesh.material.clippingPlanes = [];
                 planeMesh.material.transparent = true;
                 planeMesh.material.opacity = 0.3;
-                renderer.render( scene, camera );
+                renderer.render( scene, activeCamera );
             });
 
             document.getElementById("solidView").addEventListener("click", function(){
                 defaultView();
-                renderer.render( scene, camera );
+                renderer.render( scene, activeCamera );
             });
 
         }
@@ -380,7 +407,7 @@ function viewer() {
                 gl_FragColor = vec4( glow, 1.0 );
             }`
 
-        let materialCameraPosition = camera.position.clone();
+        let materialCameraPosition = cameraPerspective.position.clone();
         materialCameraPosition.z += 10;
 
         var xrayMaterial = new THREE.ShaderMaterial(
@@ -389,7 +416,7 @@ function viewer() {
                 "c": { type: "f", value: 0.5 },
                 "p": { type: "f", value: 1 },
                 glowColor: { type: "c", value: new THREE.Color(0x575757) },
-                viewVector: { type: "v3", value: camera.position }
+                viewVector: { type: "v3", value: cameraPerspective.position }
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
@@ -420,17 +447,25 @@ function viewer() {
 
     function onWindowResize() {
 
-        camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
-        camera.updateProjectionMatrix();
+        let windowAspect = canvasContainer.clientWidth/canvasContainer.clientHeight; // scale the frustrum according to page size
+        cameraOrthographic.top = gridHelperSize;
+        cameraOrthographic.bottom = - gridHelperSize;
+        cameraOrthographic.left = - gridHelperSize * windowAspect;
+        cameraOrthographic.right = gridHelperSize * windowAspect;
+        cameraOrthographic.updateProjectionMatrix();
+        
+        cameraPerspective.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+        cameraPerspective.updateProjectionMatrix();
         renderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
         labelRenderer.setSize( canvasContainer.clientWidth, canvasContainer.clientHeight );
-        renderer.render( scene, camera );
-        labelRenderer.render( scene, camera );
+        renderer.render( scene, activeCamera );
+        labelRenderer.render( scene, activeCamera );
 
     }
 
-    function updateScaleGrid() {
-        let cameraFacing = camera.getWorldDirection(new THREE.Vector3(0, 0, 0));
+    function updateScene() {
+
+        let cameraFacing = cameraPerspective.getWorldDirection(new THREE.Vector3(0, 0, 0));
         let x = (cameraFacing.x);
         let y = (cameraFacing.y);
         let z = (cameraFacing.z);
@@ -463,20 +498,25 @@ function viewer() {
         let loaderDiv = document.getElementById("loaderContainer"); // remove the loader div
         loaderDiv.style.opacity = "0";
         loaderDiv.style.pointerEvents = "none";
-        cameraControls.dolly(-2, true); // transition into the final camera position
-        cameraControls.removeEventListener( "update", onFirstRenderChanges );
+        let cameraPosition = cameraControlsPerspective.getPosition();//get cameras current position
+        cameraControlsPerspective.dolly(-2, true); // transition into the final camera position
+        cameraControlsOrthographic.dolly(-2, true); // transition into the final camera position
+        cameraControlsPerspective.removeEventListener( "update", onFirstRenderChanges ); // only need to do this for perspective as we only listen on perspective
+        cameraControlsOrthographic.removeEventListener( "update", onFirstRenderChanges ); // only need to do this for perspective as we only listen on perspective
     }
 
     function render() {
 
         let delta = clock.getDelta();
-        let haveControlsUpdated = cameraControls.update( delta );
+        let haveControlsPerspectiveUpdated = cameraControlsPerspective.update( delta );
+        let haveControlsOrthographicUpdated = cameraControlsOrthographic.update( delta );
         requestAnimationFrame(render);
 
-        if (haveControlsUpdated) {
-            updateScaleGrid();
-            renderer.render( scene, camera );
-            labelRenderer.render( scene, camera );
+        if (haveControlsPerspectiveUpdated || haveControlsOrthographicUpdated) {
+
+            updateScene();
+            renderer.render( scene, activeCamera );
+            labelRenderer.render( scene, activeCamera );
 
 
         }
