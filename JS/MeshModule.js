@@ -8,14 +8,8 @@ document.getElementById ("3DModelUpload").addEventListener ("change", function (
     let loaderDiv = document.getElementById("loaderContainer"); // re-add the loader div
     loaderDiv.style.opacity = "100";
     loaderDiv.style.pointerEvents = "auto";
-    let reader = new FileReader();
-    reader.readAsDataURL(this.files[0]);
-
-    reader.addEventListener("load", function () {
-        modelFile = reader.result;
-        viewer();
-    }, false);
-
+    modelFile = URL.createObjectURL(this.files[0])
+    viewer();
 });
 
 
