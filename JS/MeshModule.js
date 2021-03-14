@@ -37,7 +37,7 @@ function viewer() {
         THREE.Object3D.DefaultUp.set(0, 0, 1); // set z up by default
 
         // camera
-        cameraPerspective = new THREE.PerspectiveCamera(70, canvasContainer.clientWidth/canvasContainer.clientHeight); // create new camera with width and height of the canvascontainer
+        cameraPerspective = new THREE.PerspectiveCamera(90, canvasContainer.clientWidth/canvasContainer.clientHeight); // create new camera with width and height of the canvascontainer
         cameraOrthographic = new THREE.OrthographicCamera( -canvasContainer.clientWidth / 2, canvasContainer.clientWidth / 2, canvasContainer.clientHeight / 2, -canvasContainer.clientHeight / 2, 0.1, 1000 );
         
         activeCamera = cameraPerspective;
@@ -137,7 +137,7 @@ function viewer() {
             cameraControlsOrthographic.minZoom = 0.37735360253530714;
             cameraControlsPerspective.minDistance = 0.1; // set min distance so the scroll doesnt get "trapped" close
             cameraControlsOrthographic.maxZoom = 31.082679163805047;
-            cameraHome = new THREE.Vector3(-gridHelperSize, -gridHelperSize*1.1, gridHelperSize/2.5) //set the home point of the camera to global
+            cameraHome = new THREE.Vector3(-gridHelperSize, -gridHelperSize, gridHelperSize/2.5) //set the home point of the camera to global
             cameraControlsPerspective.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
             cameraControlsOrthographic.setLookAt(cameraHome.x, cameraHome.y, cameraHome.z, 0, 0, 0, false); // set camera position with slight offset and no transition so it slides into place
             
@@ -483,7 +483,7 @@ function viewer() {
 
         let newX, newY;
 
-        if (Math.abs(x) > Math.abs(y)) { // determin which value of the cameras position vector is absolutely bigger
+        if (Math.abs(x) > Math.abs(y + 0.1)) { // determin which value of the cameras position vector is absolutely bigger
             if (x > 0) {
                 newX = -gridHelperSize/2 - 0.25
                 newY = gridHelperSize/2 - 0.5 // set position of label to EAST
