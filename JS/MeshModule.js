@@ -153,12 +153,15 @@ function viewer() {
             cameraControlsPerspective.addEventListener("update", onFirstRenderChanges);
             cameraControlsOrthographic.addEventListener("update", onFirstRenderChanges);
 
-
-            let edges = new THREE.EdgesGeometry(geometry, 75);
-            let edgeGeom = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0xacabab, clippingPlanes: [crossSectionPlane]}));
-            edgeGeom.name = "edgeGeom";
-            scene.add(edgeGeom); // edge highlighting
-
+            
+            if (document.getElementById ("3DModelUpload").files[0].size < 45000000) { // check size of file TODO make this check modelfile not html
+                let edges = new THREE.EdgesGeometry(geometry, 75);
+                let edgeGeom = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color: 0xacabab, clippingPlanes: [crossSectionPlane]}));
+                edgeGeom.name = "edgeGeom";
+                scene.add(edgeGeom); // edge highlighting
+            }
+            
+                
             let gridXZ = new THREE.GridHelper(gridHelperSize, gridHelperSize, 0xdedede, 0xffffff);
             gridXZ.rotation.x = Math.PI/2;
             gridXZ.position.set(0,0,-geometry.boundingBox.max.z - 0.001);
