@@ -162,9 +162,6 @@ function viewer() {
             scene.add(gridXZ); //gridhelper plane
 
             // making the scale label
-            let labelOffset = 0.25;
-            if (gridHelperSize > 5) { 
-                labelOffset = 0.75;
             
             
             let labelOffset = ((gridHelperSize - 2) / 12 * 0.5) + 0.25 // mapping function to map gridhelpersize to labeloffset  
