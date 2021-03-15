@@ -162,9 +162,13 @@ function viewer() {
             scene.add(gridXZ); //gridhelper plane
 
             // making the scale label
-
-
-            scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + 0.25,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), oneUnit + "mm") // make scale label
+            let labelOffset = 0.25;
+            if (gridHelperSize > 5) { 
+                labelOffset = 0.75;
+            }
+            
+            scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + labelOffset,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), oneUnit + "mm"); // make scale label
+            scaleLabel.userData = labelOffset;
 
         }
 
@@ -482,19 +486,19 @@ function viewer() {
 
         if (Math.abs(x) > Math.abs(y + 0.1)) { // determin which value of the cameras position vector is absolutely bigger
             if (x > 0) {
-                newX = -gridHelperSize/2 - 0.25
+                newX = -gridHelperSize/2 - scaleLabel.userData
                 newY = gridHelperSize/2 - 0.5 // set position of label to EAST
             } else {
-                newX = gridHelperSize/2 + 0.25
+                newX = gridHelperSize/2 + scaleLabel.userData
                 newY = -gridHelperSize/2 + 0.5
             } // set position of label to WEST
         } else {
             if (y > 0) {
                 newX = -gridHelperSize/2 + 0.5
-                newY = -gridHelperSize/2 -0.25 // set position of label to NORTH
+                newY = -gridHelperSize/2 - scaleLabel.userData // set position of label to NORTH
             } else {
                 newX = gridHelperSize/2 - 0.5
-                newY = gridHelperSize/2 + 0.25
+                newY = gridHelperSize/2 + scaleLabel.userData
             } // set position of label to SOUTH 
         };
 
