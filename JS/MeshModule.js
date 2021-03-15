@@ -261,6 +261,10 @@ function viewer() {
                 let zoomScale = Math.pow(0.95, amount * cameraControlsPerspective.dollySpeed);//calculate equivelant zoom
                 let dollyDistance = cameraControlsPerspective.distance * dollyScale;
                 let zoomAmount = cameraOrthographic.zoom * zoomScale;
+                if (dollyDistance > cameraControlsOrthographic.minDistance && dollyDistance < cameraControlsOrthographic.maxDistance) { // check if dolly is too far in or out
+                    cameraControlsPerspective.dollyTo(dollyDistance, true);
+                    cameraControlsOrthographic.zoomTo(zoomAmount, true);
+                };
 
             };
 
