@@ -165,8 +165,9 @@ function viewer() {
             let labelOffset = 0.25;
             if (gridHelperSize > 5) { 
                 labelOffset = 0.75;
-            }
             
+            
+            let labelOffset = ((gridHelperSize - 2) / 12 * 0.5) + 0.25 // mapping function to map gridhelpersize to labeloffset  
             scaleLabel = makeLabel("scale",new THREE.Vector3(gridHelperSize/2 + labelOffset,-gridHelperSize/2 + 0.5,-geometry.boundingBox.max.z), oneUnit + "mm"); // make scale label
             scaleLabel.userData = labelOffset;
 
