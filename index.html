@@ -13,23 +13,45 @@
         
         <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
             <div id="loaderContainer"><div class="loader"></div></div>
-            <div id="UIContainer">
-                <input id="crossSectionSlider" orient="vertical" type="range" step="10" min="0" max="1000" value="1000" id="crossSectionSlider" autocomplete="off">
-                <label for="crossSectionSlider">Orthographic</label>
-                <button id="zoomIn">+</button>
-                <button id="zoomOut">-</button>
-                <button id="homeView">home</button>
-                <input id="solidView" type="radio" name="viewMode" checked="checked" autocomplete="off">
-                <label for="solidView">solid</label>
-                <input id="wireFrameView" type="radio" name="viewMode" autocomplete="off">
-                <label for="wireFrameView">wireframe</label>
-                <input id="xRayView" type="radio" name="viewMode" autocomplete="off">
-                <label for="xRayView">xRay</label>
-                <input id="perspectiveCam" type="radio" name="camera" checked="checked" autocomplete="off">
-                <label for="perspectiveCam">Perspective</label>
-                <input id="orthographicCam" type="radio" name="camera" autocomplete="off">
-                <label for="orthographicCam">Orthographic</label>
-            </div>
+            <form id="UIContainer">
+                <!--<fieldset>
+                    <input id="crossSectionSlider" orient="vertical" type="range" step="10" min="0" max="1000" value="1000" id="crossSectionSlider" autocomplete="off">
+                    <label for="crossSectionSlider">Orthographic</label>
+                </fieldset>-->
+                <fieldset id="UISceneControls">
+                    <fieldset class="UIRadioContainer">
+                        <legend>Model View</legend>
+                        <legend>Model View</legend>
+                        <label for="solidView">
+                            <input id="solidView" type="radio" name="viewMode" checked="checked" autocomplete="off">
+                            <span>solid</span>
+                        </label>
+                        <label for="wireFrameView">
+                            <input id="wireFrameView" type="radio" name="viewMode" autocomplete="off">
+                            <span>wireframe</span>
+                        </label>
+                        <label for="xRayView">
+                            <input id="xRayView" type="radio" name="viewMode" autocomplete="off">
+                            <span>xRay</span>
+                        </label>
+                    </fieldset>
+                    <fieldset class="UIRadioContainer">
+                        <label for="perspectiveCam">
+                            <input id="perspectiveCam" type="radio" name="camera" checked="checked" autocomplete="off">
+                            <span>Perspective</span>
+                        </label>
+                        <label for="orthographicCam">
+                            <input id="orthographicCam" type="radio" name="camera" autocomplete="off">
+                            <span>Orthographic</span>
+                        </label>
+                    </fieldset>
+                </fieldset>
+                <fieldset id="UICameraControls">
+                    <button type="button" id="zoomIn">+</button>
+                    <button type="button" id="zoomOut">-</button>
+                    <button type="button" id="homeView">home</button>
+                </fieldset>
+            </form>
             <canvas id="canvas"></canvas>
             <div id="labelContainer"></div>
         </div>
