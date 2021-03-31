@@ -254,6 +254,7 @@ function viewer() {
             let xrayMatBody = initXrayMaterials(true); // init xraymat with clippingplanes on
             let stencilMats = initStencilMaterials(initXrayMaterials(false)); // call initstencilmats with xray material as argument (calling initxraymaterials with clipping planes disabled)
             let xrayMatPlane = stencilMats[2]; // set xray plane material to the 3rd returned argument (planestencilmat)
+            let wireframeMat = new THREE.MeshLambertMaterial( { color: 0x404A4C } );
             cameraOrthographic.visible = false;
             
             function dollyZoom(amount) {
@@ -305,6 +306,7 @@ function viewer() {
                 defaultView();
                 edgeGeom.material.transparent = true;
                 edgeGeom.material.opacity = 0; //get edge geometry
+                mesh.material = wireframeMat;
                 mesh.material.wireframe = true;
                 planeMesh.material.transparent = true;
                 planeMesh.material.opacity = 0.5;
