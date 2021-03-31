@@ -14,33 +14,33 @@
         <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
             <div id="loaderContainer"><div class="loader"></div></div>
             <form id="UIContainer">
-                <!--<fieldset>
+                <fieldset>
                     <input id="crossSectionSlider" orient="vertical" type="range" step="10" min="0" max="1000" value="1000" id="crossSectionSlider" autocomplete="off">
                     <label for="crossSectionSlider">Orthographic</label>
-                </fieldset>-->
+                </fieldset>
                 <fieldset id="UISceneControls">
-                    <fieldset class="UIRadioContainer">
-                        <legend>Model View</legend>
-                        <legend>Model View</legend>
-                        <label for="solidView">
+                    <fieldset class="UIRadioContainer" style="--options: 3">
+                        <legend><span>Model View</span></legend>
+                        <label style="--order: 3" for="solidView">
                             <input id="solidView" type="radio" name="viewMode" checked="checked" autocomplete="off">
                             <span>solid</span>
                         </label>
-                        <label for="wireFrameView">
+                        <label style="--order: 2" for="wireFrameView">
                             <input id="wireFrameView" type="radio" name="viewMode" autocomplete="off">
                             <span>wireframe</span>
                         </label>
-                        <label for="xRayView">
+                        <label style="--order: 1" for="xRayView">
                             <input id="xRayView" type="radio" name="viewMode" autocomplete="off">
                             <span>xRay</span>
                         </label>
                     </fieldset>
-                    <fieldset class="UIRadioContainer">
-                        <label for="perspectiveCam">
+                    <fieldset class="UIRadioContainer" style="--options: 2">
+                        <legend><span>Model type</span></legend>
+                        <label style="--order: 2" for="perspectiveCam">
                             <input id="perspectiveCam" type="radio" name="camera" checked="checked" autocomplete="off">
                             <span>Perspective</span>
                         </label>
-                        <label for="orthographicCam">
+                        <label style="--order: 1" for="orthographicCam">
                             <input id="orthographicCam" type="radio" name="camera" autocomplete="off">
                             <span>Orthographic</span>
                         </label>
