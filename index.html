@@ -14,10 +14,6 @@
         <div id="canvasContainer">  <!--Warning, things inside this div are generated and updated by JS, things may get strange-->
             <div id="loaderContainer"><div class="loader"></div></div>
             <form id="UIContainer">
-                <fieldset>
-                    <input id="crossSectionSlider" orient="vertical" type="range" step="10" min="0" max="1000" value="1000" id="crossSectionSlider" autocomplete="off">
-                    <label for="crossSectionSlider">Orthographic</label>
-                </fieldset>
                 <fieldset id="UISceneControls">
                     <fieldset class="UIRadioContainer" style="--options: 3">
                         <legend><span>Model View</span></legend>
@@ -35,7 +31,7 @@
                         </label>
                     </fieldset>
                     <fieldset class="UIRadioContainer" style="--options: 2">
-                        <legend><span>Model type</span></legend>
+                        <legend><span>Camera view</span></legend>
                         <label style="--order: 2" for="perspectiveCam">
                             <input id="perspectiveCam" type="radio" name="camera" checked="checked" autocomplete="off">
                             <span>Perspective</span>
@@ -46,10 +42,18 @@
                         </label>
                     </fieldset>
                 </fieldset>
-                <fieldset id="UICameraControls">
-                    <button type="button" id="zoomIn">+</button>
-                    <button type="button" id="zoomOut">-</button>
-                    <button type="button" id="homeView">home</button>
+                <fieldset id="UIBottomControls">
+                    <fieldset id="UICameraControls">
+                        <button type="button" id="homeView">home</button>
+                        <fieldset id="zoomControls">
+                            <button type="button" id="zoomIn">+</button>
+                            <button type="button" id="zoomOut">-</button>
+                        </fieldset>
+                    </fieldset>
+                    <fieldset id="UISliceControls">
+                        <label for="crossSectionSlider">Orthographic</label>
+                        <input id="crossSectionSlider" orient="vertical" type="range" step="10" min="0" max="1000" value="1000" id="crossSectionSlider" autocomplete="off">
+                    </fieldset>
                 </fieldset>
             </form>
             <canvas id="canvas"></canvas>

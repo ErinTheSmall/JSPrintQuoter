@@ -24,8 +24,8 @@ html, body {
 
 #canvasContainer {
     position: relative;
-    height: 90%;
-    width: 60%;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
     background-color: #2a2a2a;
     pointer-events: none;
@@ -59,15 +59,42 @@ html, body {
 /* START CANVAS UI SECTION */
 
 #UIContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: absolute;
     pointer-events: none;
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
     margin: 0;
     z-index: 3;
     color: var(--fontColour);
+}
+
+#UISceneControls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    height: 2em;
+}
+
+#UIBottomControls {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#UICameraControls {
+    display: flex;
+    flex-wrap: wrap
+}
+
+#UISliceControls {
 }
 
 #UIContainer fieldset {
@@ -216,17 +243,6 @@ html, body {
 
 .UIRadioContainer input:focus + span:before {
     border-color: var(--highlightColour);
-}
-
-#UISceneControls {
-    display: flex;
-    flex-direction: row;
-    height: 2em;
-}
-
-#UICameraControls {
-    position: absolute;
-    bottom: 0;
 }
 
 #crossSectionSlider {
