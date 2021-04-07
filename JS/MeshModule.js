@@ -255,6 +255,7 @@ function viewer() {
             let stencilMats = initStencilMaterials(initXrayMaterials(false)); // call initstencilmats with xray material as argument (calling initxraymaterials with clipping planes disabled)
             let xrayMatPlane = stencilMats[2]; // set xray plane material to the 3rd returned argument (planestencilmat)
             let wireframeMat = new THREE.MeshLambertMaterial( { color: 0x404A4C } );
+            wireframeMat.clippingPlanes = [crossSectionPlane];
             cameraOrthographic.visible = false;
             
             function dollyZoom(amount) {
